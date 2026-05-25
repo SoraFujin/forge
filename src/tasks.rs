@@ -11,11 +11,11 @@ pub fn find_task(tasks: &[Task], task_id: u32) {
         if task.id == task_id {
             match &task.due_date {
                 Some(date) => {
-                    println!("Title: {}, Priority: {:?}, Status: {:?}, Due Date: {}", task.title, task.priority, task.status, date);
+                    println!("Title: {}, Priority: {}, Status: {}, Due Date: {}", task.title, task.priority.to_str(), task.status.to_str(), date);
                     break
                 },
                 None => {
-                    println!("Title: {}, Priority: {:?}, Status: {:?}", task.title, task.priority, task.status);
+                    println!("Title: {}, Priority: {}, Status: {}", task.title, task.priority.to_str(), task.status.to_str());
                     break
                 }
             }
@@ -63,15 +63,15 @@ pub fn filter_status(tasks: &[Task], status_filter: &str) {
     let status = match Status::to_status(status_filter.to_lowercase().as_str()) {
         Some(status) => status,
         None =>{
-            eprint!("[Error] from utils/tasks.rs: Cannot parse to status enum");
+            eprintln!("Invalid status. Expected: todo, in progress, or done.");
             return
         }
     };
     for task in tasks {
         if task.status == status {
             match &task.due_date {
-                Some(date) => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}, Due date: {}", task.id, task.title, task.priority, task.status, date),
-                None => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}", task.id, task.title, task.priority, task.status)
+                Some(date) => println!("id: {}, Title: {}, Priority: {}, Status: {}, Due date: {}", task.id, task.title, task.priority.to_str(), task.status.to_str(), date),
+                None => println!("id: {}, Title: {}, Priority: {}, Status: {}", task.id, task.title, task.priority.to_str(), task.status.to_str())
             }
         } 
     }
@@ -81,15 +81,15 @@ pub fn filter_priority(tasks: &[Task], priority_filter: &str) {
     let priority = match Priority::to_priority(priority_filter.to_lowercase().as_str()) {
         Some(priority) => priority,
         None => {
-            eprintln!("[Error] from utils/tasks.rs: Cannot parse to Priority enum");
+            eprintln!("Invalid priority. Expected: high, medium, or low.");
             return
         }
     };
     for task in tasks {
         if task.priority == priority {
             match &task.due_date {
-                Some(date) => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}, Due date: {}", task.id, task.title, task.priority, task.status, date),
-                None => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}", task.id, task.title, task.priority, task.status)
+                Some(date) => println!("id: {}, Title: {}, Priority: {}, Status: {}, Due date: {}", task.id, task.title, task.priority.to_str(), task.status.to_str(), date),
+                None => println!("id: {}, Title: {}, Priority: {}, Status: {}", task.id, task.title, task.priority.to_str(), task.status.to_str())
             }
         }
     }
@@ -98,8 +98,8 @@ pub fn filter_priority(tasks: &[Task], priority_filter: &str) {
  pub fn print_tasks(tasks: &[Task]) {
     for task in tasks {
         match &task.due_date {
-            Some(date) => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}, Due date: {}", task.id, task.title, task.priority, task.status, date),
-            None => println!("id: {}, Title: {}, Priority: {:?}, Status: {:?}", task.id, task.title, task.priority, task.status)
+            Some(date) => println!("id: {}, Title: {}, Priority: {}, Status: {}, Due date: {}", task.id, task.title, task.priority.to_str(), task.status.to_str(), date),
+            None => println!("id: {}, Title: {}, Priority: {}, Status: {}", task.id, task.title, task.priority.to_str(), task.status.to_str())
         }
     }
 }

@@ -1,26 +1,24 @@
-use crate::{projects::new_project, tasks::new_task, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
+use crate::{projects::{edit_desciption, edit_name, new_project, print_projects}, tasks::{edit_due_date, edit_priority, edit_status, edit_title, filter_priority, filter_status, new_task, print_tasks}, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
 
 pub fn options(menu_context: MenuContext) {
     match menu_context {
         MenuContext::Main =>{
-            println!("Enter an option [1-5]");
             println!("1. Create a new Project\n2. Choose a Project\n3. List all Projects\n4. Edit a Project\n5. Exit")
         },
         MenuContext::NewProject => {
-            println!("Enter an option [1-2]");
             println!("1. Create a new Task\n2. Exit")
         },
+        MenuContext::EditProject => {
+            println!("1. Edit name\n2. Edit description\n3. Exit")
+        },
         MenuContext::ProjectWithTasks => {
-            println!("Enter an option [1-5]");
-            println!("1. Create a new Task\n2. List all Tasks\n3.Edit a Task\n4. Filter through Tasks\n5. Exit")
+            println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Filter Tasks\n5. Exit")
         },
         MenuContext::EditTask => {
-            println!("Enter an option [1-5]");
-            println!("1. Edit title\n2. Edit Status\n3. Edit Priority\n4. Edit due date\n5. Exit")
+            println!("1. Edit title\n2. Edit status\n3. Edit priority\n4. Edit due date\n5. Exit")
         },
         MenuContext::FilterTask => {
-            println!("Enter an option to filter [1-3]");
-            println!("1. Status\n2. Priority\n3. Exit")
+            println!("1. Filter by status\n2. Filter by priority\n3. Exit")
         }
         _ => ()
     }
@@ -28,18 +26,18 @@ pub fn options(menu_context: MenuContext) {
 
 //======================= Handle Project Options =================================
 pub fn handle_create_project(projects: &mut Vec<Project>) {
-    let name: String = match read_input("Enter the name of the project") {
+    let name: String = match read_input("Project name:") {
         Some(name) => name,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
 
-    let description: String = match read_input("Enter the description of the project") {
+    let description: String = match read_input("Project description:") {
         Some(desc) => desc,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
@@ -47,58 +45,169 @@ pub fn handle_create_project(projects: &mut Vec<Project>) {
     new_project(projects, name, description)
 }
 
-pub fn handle_choose_project(projects: &[Project]) {
+pub fn handle_choose_project(projects: &mut [Project]) {
+    print_projects(projects);
+    let project_id: u32 = match read_input("Project ID:") {
+        Some(id) => id,
+        None => {
+            eprintln!("Invalid ID. Must be a number.");
+            return
+        }
+    };
+    if let Some(project) = projects.iter_mut().find(|p| p.id == project_id) {
+        handle_project_context(project);
+    } else {
+        eprintln!("No project found with that ID.");
+    }
+}
+
+pub fn handle_project_context(project: &mut Project) {
+    loop {
+        if project.tasks.is_empty() {
+            options(MenuContext::NewProject);
+            let option: u8 = match read_input("") {
+                Some(option) => option,
+                None => {
+                    eprintln!("Invalid option. Must be a number.");
+                    return
+                }
+            };
+
+            if option == 2 {
+                break;
+            }
+            if option == 1 {
+                handle_create_task(&mut project.tasks);
+            }
+
+            if option > 2 || option == 0  {
+                eprintln!("Invalid option. Choose 1 or 2.");
+                continue
+            }
+        } else {
+            options(MenuContext::ProjectWithTasks);
+            let option: u8 = match read_input("") {
+                Some(option) => option,
+                None => {
+                    eprintln!("Invalid option. Must be a number.");
+                    return
+                }
+            };
+            match option {
+                1 => handle_create_task(&mut project.tasks),
+                2 => print_tasks(&project.tasks),
+                3 => handle_edit_task(&mut project.tasks),
+                4 => handle_filter_tasks(&project.tasks),
+                5 => break,
+                _ => eprintln!("Invalid option. Choose between 1 and 5.")
+            }
+        }
+    }
+}
+
+pub fn handle_edit_project(projects: &mut [Project]) {
+    loop {
+        options(MenuContext::EditProject);
+        let option: u8 = match read_input("") {
+            Some(option) => option,
+            None => {
+                eprintln!("Invalid option. Must be a number.");
+                return
+            }
+        };
+
+        match option {
+            1 => {
+                let project_id: u32 = match read_input("Project ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+
+                let new_name: String = match read_input("New name:") {
+                    Some(name) => name,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                edit_name(projects, project_id, &new_name);
+            },
+            2 => {
+                let project_id: u32 = match read_input("Project ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+
+                let new_desciption: String = match read_input("New description:") {
+                    Some(desc) => desc,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                edit_desciption(projects, project_id, &new_desciption);
+            },
+            3 => break,
+            _ => eprintln!("Invalid option. Choose between 1 and 3.")
+        }
+    }
 }
 
 // ====================== Handle Task Options ====================================
 pub fn handle_create_task(tasks: &mut Vec<Task>) {
-    let title: String = match read_input("Enter the description of the project") {
+    let title: String = match read_input("Task title:") {
         Some(title) => title,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
 
-    let priority_input: String = match read_input("Enter the priority of the task") {
+    let priority_input: String = match read_input("Priority (high / medium / low):") {
         Some(prio) => prio,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
     let priority = match Priority::to_priority(&priority_input.to_lowercase()) {
         Some(priority) => priority,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Invalid priority. Expected: high, medium, or low.");
             return
         }
     };
 
-    let status_input: String = match read_input("Enter the priority of the task") {
+    let status_input: String = match read_input("Status (todo / in progress / done):") {
         Some(status)=> status,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
     let status = match Status::to_status(&status_input.to_lowercase()) {
         Some(status) => status,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Invalid status. Expected: todo, in progress, or done.");
             return
         }
     };
 
-    let due_date_option: String = match read_input("Do you want to add due date? [y/n]") {
+    let due_date_option: String = match read_input("Add due date? (y/n):") {
         Some(option) => option,
         None => {
-            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            eprintln!("Failed to read input.");
             return
         }
     };
     let due_date: Option<String> = if due_date_option.trim() == "y" {
-        read_input("Enter Due Date in the format [DD-MM-YYYY]")
+        read_input("Due date (DD-MM-YYYY):")
     } else {
         None
     };
@@ -106,5 +215,144 @@ pub fn handle_create_task(tasks: &mut Vec<Task>) {
     new_task(tasks, title, priority, status, due_date);
 }
 
-pub fn handle_search_project(projects: &[Project]) {
+pub fn handle_edit_task(tasks: &mut [Task]) {
+    loop {
+        options(MenuContext::EditTask);
+        let option: u8 = match read_input("") {
+            Some(option) => option,
+            None => {
+                eprintln!("Invalid option. Must be a number.");
+                return
+            }
+        };
+
+        match option {
+            1 => {
+                let task_id: u32 = match read_input("Task ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+                let new_title: String = match read_input("New title:") {
+                    Some(title) => title,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                edit_title(tasks, task_id, new_title);
+            },
+            2 => {
+                let task_id: u32 = match read_input("Task ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+
+                let status: String = match read_input("New status (todo / in progress / done):") {
+                    Some(status) => status,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+
+                let new_status = match Status::to_status(&status.to_lowercase()) {
+                    Some(status) => status,
+                    None => {
+                        eprintln!("Invalid status. Expected: todo, in progress, or done.");
+                        return
+                    }
+                };
+                edit_status(tasks, task_id, new_status);
+            },
+            3 => {
+                let task_id: u32 = match read_input("Task ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+
+                let priority: String = match read_input("New priority (high / medium / low):") {
+                    Some(prio) => prio,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                let new_priority = match Priority::to_priority(&priority.to_lowercase()) {
+                    Some(prio) => prio,
+                    None =>  {
+                        eprintln!("Invalid priority. Expected: high, medium, or low.");
+                        return
+                    }
+                };
+
+                edit_priority(tasks, task_id, new_priority);
+            },
+            4 => {
+                let task_id: u32 = match read_input("Task ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        return
+                    }
+                };
+                let new_date: String = match read_input("New due date (DD-MM-YYYY):") {
+                    Some(date) => date,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                edit_due_date(tasks, task_id, new_date);
+            },
+            5 => break,
+            _ => eprintln!("Invalid option. Choose between 1 and 5.")
+        }
+    }
+}
+
+pub fn handle_filter_tasks(tasks: &[Task]) {
+    loop {
+        options(MenuContext::FilterTask);
+        let option: u8 = match read_input("") {
+            Some(option) => option,
+            None => {
+                eprintln!("Invalid option. Must be a number.");
+                return
+            }
+        };
+
+        match option {
+            1 => {
+                let status_filter: String = match read_input("Status (todo / in progress / done):") {
+                    Some(status) => status,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                filter_status(tasks, status_filter.as_str());
+            },
+            2 => {
+                let priority_filter: String = match read_input("Priority (high / medium / low):") {
+                    Some(prio) => prio,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        return
+                    }
+                };
+                filter_priority(tasks, &priority_filter);
+            },
+            3 => break,
+            _ => eprintln!("Invalid option. Choose between 1 and 3.")
+        }
+    }
 }

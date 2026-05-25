@@ -9,15 +9,8 @@ pub fn new_project(projects: &mut Vec<Project>, name: String, description: Strin
 pub fn find_project(projects: &[Project], project_id: u32) {
     for project in projects {
         if project.id == project_id {
-            println!("Name: {}, Desciption: {}, Tasks:", project.name, project.description);
-            for task in &project.tasks {
-                match &task.due_date {
-                    Some(date) => {
-                        println!("Title: {}, Priority: {:?}, Status: {:?}, Due date: {}", task.title, task.priority, task.status, date)
-                    },
-                    None => println!("Title: {}, Priority: {:?}, Status: {:?}", task.title, task.priority, task.status)
-                }
-            }
+            println!("Name: {}, Description: {}, Tasks:", project.name, project.description);
+            print_tasks(&project.tasks);
         }
     }
 }
@@ -42,7 +35,7 @@ pub fn edit_desciption(projects: &mut [Project], project_id: u32, new_desciption
 
 pub fn print_projects(projects: &[Project]) {
     for project in projects {
-        println!("id: {}, Name: {}, Desciption: {}, Tasks: ", project.id, project.name, project.description);
+        println!("id: {}, Name: {}, Description: {}, Tasks: ", project.id, project.name, project.description);
         print_tasks(&project.tasks);
     }
 }

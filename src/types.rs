@@ -2,6 +2,7 @@ pub enum MenuContext {
     Main,
     NewProject,
     ProjectWithTasks,
+    EditProject,
     NewTask,
     FilterTask,
     EditTask
