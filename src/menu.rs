@@ -1,4 +1,4 @@
-use crate::types::MenuContext;
+use crate::{projects::new_project, tasks::new_task, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
 
 pub fn options(menu_context: MenuContext) {
     match menu_context {
@@ -24,4 +24,87 @@ pub fn options(menu_context: MenuContext) {
         }
         _ => ()
     }
+}
+
+//======================= Handle Project Options =================================
+pub fn handle_create_project(projects: &mut Vec<Project>) {
+    let name: String = match read_input("Enter the name of the project") {
+        Some(name) => name,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+
+    let description: String = match read_input("Enter the description of the project") {
+        Some(desc) => desc,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+
+    new_project(projects, name, description)
+}
+
+pub fn handle_choose_project(projects: &[Project]) {
+}
+
+// ====================== Handle Task Options ====================================
+pub fn handle_create_task(tasks: &mut Vec<Task>) {
+    let title: String = match read_input("Enter the description of the project") {
+        Some(title) => title,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+
+    let priority_input: String = match read_input("Enter the priority of the task") {
+        Some(prio) => prio,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+    let priority = match Priority::to_priority(&priority_input.to_lowercase()) {
+        Some(priority) => priority,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+
+    let status_input: String = match read_input("Enter the priority of the task") {
+        Some(status)=> status,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+    let status = match Status::to_status(&status_input.to_lowercase()) {
+        Some(status) => status,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+
+    let due_date_option: String = match read_input("Do you want to add due date? [y/n]") {
+        Some(option) => option,
+        None => {
+            eprintln!("[Error] from src/menu.rs: Cannot parse");
+            return
+        }
+    };
+    let due_date: Option<String> = if due_date_option.trim() == "y" {
+        read_input("Enter Due Date in the format [DD-MM-YYYY]")
+    } else {
+        None
+    };
+
+    new_task(tasks, title, priority, status, due_date);
+}
+
+pub fn handle_search_project(projects: &[Project]) {
 }

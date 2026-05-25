@@ -8,3 +8,4 @@ pub fn read_input<T: FromStr>(message: &str) -> Option<T> {
     io::stdin().read_line(&mut input).ok()?;
     input.trim().parse::<T>().ok()
 }
+

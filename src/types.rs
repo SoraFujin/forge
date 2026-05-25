@@ -6,6 +6,8 @@ pub enum MenuContext {
     FilterTask,
     EditTask
 }
+
+#[derive(Debug)]
 pub struct Project {
     pub id: u32,
     pub name: String,
@@ -13,6 +15,7 @@ pub struct Project {
     pub tasks: Vec<Task>
 }
 
+#[derive(Debug)]
 pub struct Task {
     pub id: u32,
     pub title: String,
@@ -21,23 +24,32 @@ pub struct Task {
     pub due_date: Option<String>
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum Priority{
     HIGH,
     MEDIUM,
     LOW
 }
 
-
 impl Priority {
-    fn to_str(&self) -> &str{
+   pub fn to_str(&self) -> &str{
         match self {
             Priority::HIGH => "High",
                 Priority::MEDIUM => "Medium",
             Priority::LOW => "Low"
         }
     }
+   pub fn to_priority(priority: &str) -> Option<Priority> {
+       match priority.to_lowercase().as_str() {
+           "high" => Some(Priority::HIGH),
+           "medium" => Some(Priority::MEDIUM),
+           "low" => Some(Priority::LOW),
+           _ => None
+       }
+   }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum Status {
     InProgress,
     TODO,
@@ -45,11 +57,19 @@ pub enum Status {
 }
 
 impl Status {
-    fn to_str(&self) -> &str {
+    pub fn to_str(&self) -> &str {
         match self {
             Status::TODO => "TODO",
             Status::InProgress => "In Progress",
             Status::Done => "Done"
+        }
+    }
+    pub fn to_status(status: &str) -> Option<Self> {
+        match status.to_lowercase().as_str() {
+            "todo" => Some(Status::TODO),
+            "inprogress" | "in progress" | "in_progress" => Some(Status::InProgress),
+            "done" => Some(Status::Done),
+            _ => None
         }
     }
 }
