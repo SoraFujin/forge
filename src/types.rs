@@ -16,7 +16,7 @@ pub struct Project {
     pub tasks: Vec<Task>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Task {
     pub id: u32,
     pub title: String,
@@ -25,7 +25,7 @@ pub struct Task {
     pub due_date: Option<String>
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Priority{
     HIGH,
     MEDIUM,
@@ -50,7 +50,7 @@ impl Priority {
    }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Status {
     InProgress,
     TODO,
