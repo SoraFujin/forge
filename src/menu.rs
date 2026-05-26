@@ -69,7 +69,7 @@ pub fn handle_project_context(project: &mut Project) {
                 Some(option) => option,
                 None => {
                     eprintln!("Invalid option. Must be a number.");
-                    return
+                    continue
                 }
             };
 
@@ -90,7 +90,7 @@ pub fn handle_project_context(project: &mut Project) {
                 Some(option) => option,
                 None => {
                     eprintln!("Invalid option. Must be a number.");
-                    return
+                    continue
                 }
             };
             match option {
@@ -106,55 +106,61 @@ pub fn handle_project_context(project: &mut Project) {
 }
 
 pub fn handle_edit_project(projects: &mut [Project]) {
-    loop {
+    'outer: loop {
         options(MenuContext::EditProject);
         let option: u8 = match read_input("") {
             Some(option) => option,
             None => {
                 eprintln!("Invalid option. Must be a number.");
-                return
+                continue
             }
         };
+        'inner:  loop {
+            match option {
+                1 => {
+                    let project_id: u32 = match read_input("Project ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner 
+                        }
+                    };
 
-        match option {
-            1 => {
-                let project_id: u32 = match read_input("Project ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
+                    let new_name: String = match read_input("New name:") {
+                        Some(name) => name,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    edit_name(projects, project_id, &new_name);
+                    break 'inner
+                },
+                2 => {
+                    let project_id: u32 = match read_input("Project ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner
+                        }
+                    };
 
-                let new_name: String = match read_input("New name:") {
-                    Some(name) => name,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                edit_name(projects, project_id, &new_name);
-            },
-            2 => {
-                let project_id: u32 = match read_input("Project ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
-
-                let new_desciption: String = match read_input("New description:") {
-                    Some(desc) => desc,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                edit_desciption(projects, project_id, &new_desciption);
-            },
-            3 => break,
-            _ => eprintln!("Invalid option. Choose between 1 and 3.")
+                    let new_desciption: String = match read_input("New description:") {
+                        Some(desc) => desc,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    edit_desciption(projects, project_id, &new_desciption);
+                    break 'inner
+                },
+                3 => break 'outer,
+                _ => {
+                    eprintln!("Invalid option. Choose between 1 and 3.");
+                    continue 'outer;
+                }
+            }
         }
     }
 }
@@ -216,143 +222,159 @@ pub fn handle_create_task(tasks: &mut Vec<Task>) {
 }
 
 pub fn handle_edit_task(tasks: &mut [Task]) {
-    loop {
+    'outer: loop {
         options(MenuContext::EditTask);
         let option: u8 = match read_input("") {
             Some(option) => option,
             None => {
                 eprintln!("Invalid option. Must be a number.");
-                return
+                continue;
             }
         };
 
-        match option {
-            1 => {
-                let task_id: u32 = match read_input("Task ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
-                let new_title: String = match read_input("New title:") {
-                    Some(title) => title,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                edit_title(tasks, task_id, new_title);
-            },
-            2 => {
-                let task_id: u32 = match read_input("Task ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
+        'inner: loop{
+            match option {
+                1 => {
+                    let task_id: u32 = match read_input("Task ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner
+                        }
+                    };
+                    let new_title: String = match read_input("New title:") {
+                        Some(title) => title,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    edit_title(tasks, task_id, new_title);
+                    break 'outer
+                },
+                2 => {
+                    let task_id: u32 = match read_input("Task ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner
+                        }
+                    };
 
-                let status: String = match read_input("New status (todo / in progress / done):") {
-                    Some(status) => status,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
+                    let status: String = match read_input("New status (todo / in progress / done):") {
+                        Some(status) => status,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
 
-                let new_status = match Status::to_status(&status.to_lowercase()) {
-                    Some(status) => status,
-                    None => {
-                        eprintln!("Invalid status. Expected: todo, in progress, or done.");
-                        return
-                    }
-                };
-                edit_status(tasks, task_id, new_status);
-            },
-            3 => {
-                let task_id: u32 = match read_input("Task ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
+                    let new_status = match Status::to_status(&status.to_lowercase()) {
+                        Some(status) => status,
+                        None => {
+                            eprintln!("Invalid status. Expected: todo, in progress, or done.");
+                            continue 'inner
+                        }
+                    };
+                    edit_status(tasks, task_id, new_status);
+                    break 'outer
+                },
+                3 => {
+                    let task_id: u32 = match read_input("Task ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner
+                        }
+                    };
 
-                let priority: String = match read_input("New priority (high / medium / low):") {
-                    Some(prio) => prio,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                let new_priority = match Priority::to_priority(&priority.to_lowercase()) {
-                    Some(prio) => prio,
-                    None =>  {
-                        eprintln!("Invalid priority. Expected: high, medium, or low.");
-                        return
-                    }
-                };
+                    let priority: String = match read_input("New priority (high / medium / low):") {
+                        Some(prio) => prio,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    let new_priority = match Priority::to_priority(&priority.to_lowercase()) {
+                        Some(prio) => prio,
+                        None =>  {
+                            eprintln!("Invalid priority. Expected: high, medium, or low.");
+                            continue 'inner
+                        }
+                    };
 
-                edit_priority(tasks, task_id, new_priority);
-            },
-            4 => {
-                let task_id: u32 = match read_input("Task ID:") {
-                    Some(id) => id,
-                    None => {
-                        eprintln!("Invalid ID. Must be a number.");
-                        return
-                    }
-                };
-                let new_date: String = match read_input("New due date (DD-MM-YYYY):") {
-                    Some(date) => date,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                edit_due_date(tasks, task_id, new_date);
-            },
-            5 => break,
-            _ => eprintln!("Invalid option. Choose between 1 and 5.")
+                    edit_priority(tasks, task_id, new_priority);
+                    break 'outer
+                },
+                4 => {
+                    let task_id: u32 = match read_input("Task ID:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue 'inner
+                        }
+                    };
+                    let new_date: String = match read_input("New due date (DD-MM-YYYY):") {
+                        Some(date) => date,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    edit_due_date(tasks, task_id, new_date);
+                    break 'outer
+                },
+                5 => break 'outer,
+                _ => {
+                    eprintln!("Invalid option. Choose between 1 and 5.");
+                    continue 'outer
+                }
+            }
         }
     }
 }
 
 pub fn handle_filter_tasks(tasks: &[Task]) {
-    loop {
+    'outer: loop {
         options(MenuContext::FilterTask);
         let option: u8 = match read_input("") {
             Some(option) => option,
             None => {
                 eprintln!("Invalid option. Must be a number.");
-                return
+                continue;
             }
         };
 
-        match option {
-            1 => {
-                let status_filter: String = match read_input("Status (todo / in progress / done):") {
-                    Some(status) => status,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                filter_status(tasks, status_filter.as_str());
-            },
-            2 => {
-                let priority_filter: String = match read_input("Priority (high / medium / low):") {
-                    Some(prio) => prio,
-                    None => {
-                        eprintln!("Failed to read input.");
-                        return
-                    }
-                };
-                filter_priority(tasks, &priority_filter);
-            },
-            3 => break,
-            _ => eprintln!("Invalid option. Choose between 1 and 3.")
+        'inner: loop{
+            match option {
+                1 => {
+                    let status_filter: String = match read_input("Status (todo / in progress / done):") {
+                        Some(status) => status,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    filter_status(tasks, status_filter.as_str());
+                    break 'outer
+                },
+                2 => {
+                    let priority_filter: String = match read_input("Priority (high / medium / low):") {
+                        Some(prio) => prio,
+                        None => {
+                            eprintln!("Failed to read input.");
+                            continue 'inner
+                        }
+                    };
+                    filter_priority(tasks, &priority_filter);
+                    break 'outer
+                },
+                3 => break 'outer,
+                _ => {
+                    eprintln!("Invalid option. Choose between 1 and 3.");
+                    continue 'outer
+                }
+            }
         }
     }
 }

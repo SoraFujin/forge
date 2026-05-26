@@ -9,6 +9,3 @@ pub fn read_input<T: FromStr>(message: &str) -> Option<T> {
     input.trim().parse::<T>().ok()
 }
 
-pub fn read_id(message: &str) -> Option<u32> {
-    read_input(message)
-}
