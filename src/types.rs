@@ -3,9 +3,8 @@ pub enum MenuContext {
     NewProject,
     ProjectWithTasks,
     EditProject,
-    NewTask,
     FilterTask,
-    EditTask
+    EditTask,
 }
 
 #[derive(Debug)]

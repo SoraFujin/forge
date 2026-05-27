@@ -2,26 +2,11 @@ use std::fs;
 use crate::{tasks::print_tasks, types::{Priority, Project, Status}};
 
 pub fn new_project(projects: &mut Vec<Project>, name: String, description: String) {
-    let next_id = projects.len() as u32 + 1;
+    let next_id = projects.iter().map(|p| p.id).max().unwrap_or(0) + 1;
     let project = Project::new(next_id, name, description, Vec::new());
     projects.push(project);
 }
 
-pub fn find_project(projects: &[Project], project_id: u32) {
-    for project in projects {
-        if project.id == project_id {
-            println!(
-                "id: {}, Name: {}, Description: {}\nTasks:",
-                project.id, project.name, project.description
-            );
-
-            print_tasks(&project.tasks);
-            return;
-        }
-    }
-
-    println!("Project with id {} not found", project_id);
-}
 
 pub fn edit_name(projects: &mut [Project], project_id: u32, new_name: &str) {
     for project in projects.iter_mut() {

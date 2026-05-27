@@ -27,21 +27,11 @@ pub fn new_task(
     status: Status,
     due_date: Option<String>,
 ) {
-    let next_id = tasks.len() as u32 + 1;
+    let next_id = tasks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
     let task = Task::new(next_id, title, priority, status, due_date);
     tasks.push(task);
 }
 
-pub fn find_task(tasks: &[Task], task_id: u32) {
-    for task in tasks {
-        if task.id == task_id {
-            print_task(task);
-            return;
-        }
-    }
-
-    println!("Task with id {} not found", task_id);
-}
 
 pub fn edit_title(tasks: &mut [Task], task_id: u32, new_title: String) {
     for task in tasks.iter_mut() {

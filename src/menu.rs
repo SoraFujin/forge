@@ -14,19 +14,12 @@ pub fn options(menu_context: MenuContext) {
         MenuContext::ProjectWithTasks => {
             println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Delete Task\n5. Filter Tasks\n6. Stats\n7. Export\n8. Exit")
         },
-        MenuContext::DeleteProject => {
-            println!("Enter Project ID to delete (or 0 to cancel)")
-        },
         MenuContext::EditTask => {
             println!("1. Edit title\n2. Edit status\n3. Edit priority\n4. Edit due date\n5. Exit")
         },
         MenuContext::FilterTask => {
             println!("1. Filter by status\n2. Filter by priority\n3. Exit")
         },
-        MenuContext::DeleteTask => {
-            println!("Enter Task ID to delete (or 0 to cancel)")
-        },
-        _ => ()
     }
 }
 
