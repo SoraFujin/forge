@@ -1,4 +1,4 @@
-use crate::{projects::{delete_project, edit_description, edit_name, new_project, print_projects, print_stats}, tasks::{delete_task, edit_due_date, edit_priority, edit_status, edit_title, filter_priority, filter_status, new_task, print_tasks}, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
+use crate::{projects::{delete_project, edit_description, edit_name, export_project, new_project, print_projects, print_stats}, tasks::{delete_task, edit_due_date, edit_priority, edit_status, edit_title, filter_priority, filter_status, new_task, print_tasks}, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
 
 pub fn options(menu_context: MenuContext) {
     match menu_context {
@@ -12,7 +12,7 @@ pub fn options(menu_context: MenuContext) {
             println!("1. Edit name\n2. Edit description\n3. Delete Project\n4. Exit")
         },
         MenuContext::ProjectWithTasks => {
-            println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Delete Task\n5. Filter Tasks\n6. Stats\n7. Exit")
+            println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Delete Task\n5. Filter Tasks\n6. Stats\n7. Export\n8. Exit")
         },
         MenuContext::DeleteProject => {
             println!("Enter Project ID to delete (or 0 to cancel)")
@@ -115,8 +115,9 @@ pub fn handle_project_context(project: &mut Project) {
                 },
                 5 => handle_filter_tasks(&project.tasks),
                 6 => print_stats(project),
-                7 => break,
-                _ => eprintln!("Invalid option. Choose between 1 and 7.")
+                7 => export_project(project),
+                8 => break,
+                _ => eprintln!("Invalid option. Choose between 1 and 8.")
             }
         }
     }

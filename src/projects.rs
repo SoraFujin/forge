@@ -1,3 +1,4 @@
+use std::fs;
 use crate::{tasks::print_tasks, types::{Priority, Project, Status}};
 
 pub fn new_project(projects: &mut Vec<Project>, name: String, description: String) {
@@ -97,6 +98,32 @@ pub fn print_stats(project: &Project) {
     match highest {
         Some(title) => println!("  Top pending:  {}", title),
         None => println!("  Top pending:  none"),
+    }
+}
+
+pub fn export_project(project: &Project) {
+    let mut content = String::new();
+
+    content.push_str(&format!("Project: {}\n", project.name));
+    content.push_str(&format!("Description: {}\n", project.description));
+    content.push_str(&format!("Total tasks: {}\n\n", project.tasks.len()));
+
+    for task in &project.tasks {
+        content.push_str(&format!("  - {}\n", task.title));
+        content.push_str(&format!("    Priority: {}\n", task.priority.to_str()));
+        content.push_str(&format!("    Status:   {}\n", task.status.to_str()));
+        match &task.due_date {
+            Some(date) => content.push_str(&format!("    Due:      {}\n", date)),
+            None => content.push_str("    Due:      none\n"),
+        }
+        content.push('\n');
+    }
+
+    let file_name = format!("{}.txt", project.name.to_lowercase().replace(' ', "_"));
+
+    match fs::write(&file_name, content) {
+        Ok(_) => println!("Exported to {}", file_name),
+        Err(e) => eprintln!("Export failed: {}", e),
     }
 }
 

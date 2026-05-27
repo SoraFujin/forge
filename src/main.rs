@@ -1,8 +1,4 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
-use crate::{menu::{handle_choose_project, handle_create_project, handle_edit_project, options}, projects::{print_projects, print_stats}, storage::{read_from_file, write_to_file}, types::{Project}, utils::read_input};
+use crate::{menu::{handle_choose_project, handle_create_project, handle_edit_project, options}, projects::{print_projects, print_stats}, storage::{read_from_file, write_to_file}, utils::read_input};
 pub mod utils;
 pub mod types;
 pub mod menu;
