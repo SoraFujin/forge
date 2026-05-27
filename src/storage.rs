@@ -51,6 +51,9 @@ pub fn write_to_file(projects: &[Project]) {
 pub fn read_from_file(file_name: &str) -> Vec<Project> {
     let content = match fs::read_to_string(file_name) {
         Ok(data) => data,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Vec::new();
+        }
         Err(error) => {
             println!("Error reading file: {}", error);
             return Vec::new();
@@ -177,6 +180,5 @@ pub fn read_from_file(file_name: &str) -> Vec<Project> {
             }
         }
     }
-
     projects
 }

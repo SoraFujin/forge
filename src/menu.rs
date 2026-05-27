@@ -1,25 +1,31 @@
-use crate::{projects::{edit_desciption, edit_name, new_project, print_projects}, tasks::{edit_due_date, edit_priority, edit_status, edit_title, filter_priority, filter_status, new_task, print_tasks}, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
+use crate::{projects::{delete_project, edit_description, edit_name, new_project, print_projects, print_stats}, tasks::{delete_task, edit_due_date, edit_priority, edit_status, edit_title, filter_priority, filter_status, new_task, print_tasks}, types::{MenuContext, Priority, Project, Status, Task}, utils::read_input};
 
 pub fn options(menu_context: MenuContext) {
     match menu_context {
         MenuContext::Main =>{
-            println!("1. Create a new Project\n2. Choose a Project\n3. List all Projects\n4. Edit a Project\n5. Exit")
+            println!("1. Create a new Project\n2. Choose a Project\n3. List all Projects\n4. Edit a Project\n5. Stats\n6. Exit")
         },
         MenuContext::NewProject => {
             println!("1. Create a new Task\n2. Exit")
         },
         MenuContext::EditProject => {
-            println!("1. Edit name\n2. Edit description\n3. Exit")
+            println!("1. Edit name\n2. Edit description\n3. Delete Project\n4. Exit")
         },
         MenuContext::ProjectWithTasks => {
-            println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Filter Tasks\n5. Exit")
+            println!("1. Create a new Task\n2. List all Tasks\n3. Edit a Task\n4. Delete Task\n5. Filter Tasks\n6. Stats\n7. Exit")
+        },
+        MenuContext::DeleteProject => {
+            println!("Enter Project ID to delete (or 0 to cancel)")
         },
         MenuContext::EditTask => {
             println!("1. Edit title\n2. Edit status\n3. Edit priority\n4. Edit due date\n5. Exit")
         },
         MenuContext::FilterTask => {
             println!("1. Filter by status\n2. Filter by priority\n3. Exit")
-        }
+        },
+        MenuContext::DeleteTask => {
+            println!("Enter Task ID to delete (or 0 to cancel)")
+        },
         _ => ()
     }
 }
@@ -97,69 +103,93 @@ pub fn handle_project_context(project: &mut Project) {
                 1 => handle_create_task(&mut project.tasks),
                 2 => print_tasks(&project.tasks),
                 3 => handle_edit_task(&mut project.tasks),
-                4 => handle_filter_tasks(&project.tasks),
-                5 => break,
-                _ => eprintln!("Invalid option. Choose between 1 and 5.")
+                4 => {
+                    let task_id: u32 = match read_input("Task ID to delete:") {
+                        Some(id) => id,
+                        None => {
+                            eprintln!("Invalid ID. Must be a number.");
+                            continue;
+                        }
+                    };
+                    delete_task(&mut project.tasks, task_id);
+                },
+                5 => handle_filter_tasks(&project.tasks),
+                6 => print_stats(project),
+                7 => break,
+                _ => eprintln!("Invalid option. Choose between 1 and 7.")
             }
         }
     }
 }
 
-pub fn handle_edit_project(projects: &mut [Project]) {
-    'outer: loop {
+pub fn handle_edit_project(projects: &mut Vec<Project>) {
+    loop {
         options(MenuContext::EditProject);
+
         let option: u8 = match read_input("") {
             Some(option) => option,
             None => {
                 eprintln!("Invalid option. Must be a number.");
-                continue
+                continue;
             }
         };
-        'inner:  loop {
-            match option {
-                1 => {
-                    let project_id: u32 = match read_input("Project ID:") {
-                        Some(id) => id,
-                        None => {
-                            eprintln!("Invalid ID. Must be a number.");
-                            continue 'inner 
-                        }
-                    };
 
-                    let new_name: String = match read_input("New name:") {
-                        Some(name) => name,
-                        None => {
-                            eprintln!("Failed to read input.");
-                            continue 'inner
-                        }
-                    };
-                    edit_name(projects, project_id, &new_name);
-                    break 'inner
-                },
-                2 => {
-                    let project_id: u32 = match read_input("Project ID:") {
-                        Some(id) => id,
-                        None => {
-                            eprintln!("Invalid ID. Must be a number.");
-                            continue 'inner
-                        }
-                    };
+        match option {
+            1 => {
+                let project_id: u32 = match read_input("Project ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        continue;
+                    }
+                };
 
-                    let new_desciption: String = match read_input("New description:") {
-                        Some(desc) => desc,
-                        None => {
-                            eprintln!("Failed to read input.");
-                            continue 'inner
-                        }
-                    };
-                    edit_desciption(projects, project_id, &new_desciption);
-                    break 'inner
-                },
-                3 => break 'outer,
-                _ => {
-                    eprintln!("Invalid option. Choose between 1 and 3.");
-                    continue 'outer;
-                }
+                let new_name: String = match read_input("New name:") {
+                    Some(name) => name,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        continue;
+                    }
+                };
+
+                edit_name(projects, project_id, &new_name);
+            }
+
+            2 => {
+                let project_id: u32 = match read_input("Project ID:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID. Must be a number.");
+                        continue;
+                    }
+                };
+
+                let new_description: String = match read_input("New description:") {
+                    Some(desc) => desc,
+                    None => {
+                        eprintln!("Failed to read input.");
+                        continue;
+                    }
+                };
+
+                edit_description(projects, project_id, &new_description);
+            },
+            3 => {
+                let project_id: u32 = match read_input("Project ID to delete:") {
+                    Some(id) => id,
+                    None => {
+                        eprintln!("Invalid ID.");
+                        continue;
+                    }
+                };
+
+                delete_project(projects, project_id);
+            }
+
+            4 => return,
+
+            _ => {
+                eprintln!("Invalid option. Choose between 1 and 4.");
             }
         }
     }

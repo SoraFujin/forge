@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 
-use crate::{menu::{handle_choose_project, handle_create_project, handle_edit_project, options}, projects::print_projects, storage::{read_from_file, write_to_file}, types::{Priority, Project}, utils::read_input};
+use crate::{menu::{handle_choose_project, handle_create_project, handle_edit_project, options}, projects::{print_projects, print_stats}, storage::{read_from_file, write_to_file}, types::{Project}, utils::read_input};
 pub mod utils;
 pub mod types;
 pub mod menu;
@@ -36,6 +36,11 @@ fn main() {
                 handle_edit_project(&mut projects);
             },
             5 => {
+                for project in &projects {
+                    print_stats(project);
+                }
+            },
+            6 => {
                 write_to_file(&projects);
                 break
             }
